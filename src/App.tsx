@@ -32,14 +32,19 @@ const AppContent = () => {
   }
 
   // If we have a user but no userData yet, wait a bit
-  if (!userData) {
+  if (!userData && !loading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-dark-bg p-8 text-center">
-        <Loader2 className="text-brand-purple animate-spin mb-4" size={48} />
-        <p className="text-gray-400">Carregando seu perfil...</p>
+        <div className="w-16 h-16 bg-gradient-to-tr from-brand-purple to-brand-pink rounded-3xl animate-pulse mb-6 flex items-center justify-center">
+          <Sparkles className="text-white" size={32} />
+        </div>
+        <h2 className="text-xl font-bold mb-2">Finalizando seu perfil...</h2>
+        <p className="text-gray-400 text-sm max-w-xs mx-auto mb-8">
+          Estamos preparando tudo para sua experiência. Isso deve levar apenas alguns segundos.
+        </p>
         <button 
           onClick={() => auth.signOut()}
-          className="mt-8 text-sm text-gray-500 underline"
+          className="text-sm text-gray-500 hover:text-white transition-colors underline"
         >
           Sair e tentar novamente
         </button>

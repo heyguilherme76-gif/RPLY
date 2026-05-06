@@ -24,8 +24,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     let unsubscribeDoc: (() => void) | null = null;
+    let loadingTimeout: NodeJS.Timeout;
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
+      // Clear timeout if auth changes
+      if (loadingTimeout) clearTimeout(loadingTimeout);
+      
       // Clean up previous listener
       if (unsubscribeDoc) {
         unsubscribeDoc();
@@ -36,39 +40,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (currentUser) {
         const userRef = doc(db, "users", currentUser.uid);
-        const today = new Date().toISOString().split('T')[0];
         
-        try {
-          const userDoc = await getDoc(userRef);
-          
-          if (!userDoc.exists()) {
-            const newData = {
-              userId: currentUser.uid,
-              email: currentUser.email,
-              isPremium: false,
-              totalUsage: 0,
-              createdAt: new Date().toISOString(),
-            };
-            await setDoc(userRef, newData);
-          }
-
-          // Start listening
-          unsubscribeDoc = onSnapshot(userRef, (doc) => {
-            if (doc.exists()) {
-              setUserData(doc.data());
-            } else {
-              setUserData(null);
-            }
-            setLoading(false); 
-          }, (err) => {
-            console.error("Firestore error in AuthContext:", err);
+        // Start listening immediately
+        unsubscribeDoc = onSnapshot(userRef, async (snapshot) => {
+          if (snapshot.exists()) {
+            setUserData(snapshot.data());
             setLoading(false);
-          });
-
-        } catch (err) {
-          console.error("Error ensuring user profile:", err);
+          } else {
+            // Document doesn't exist, try to create it but don't block
+            setUserData(null);
+            
+            try {
+              const newData = {
+                userId: currentUser.uid,
+                email: currentUser.email,
+                isPremium: false,
+                totalUsage: 0,
+                createdAt: new Date().toISOString(),
+              };
+              // Using setDoc here. Since we are inside onSnapshot, 
+              // it will trigger another snapshot when done.
+              await setDoc(userRef, newData);
+            } catch (err) {
+              console.error("Error creating user profile:", err);
+              // If creation fails (e.g. permission denied), we should still stop loading
+              setLoading(false);
+            }
+          }
+        }, (err) => {
+          console.error("Firestore error in AuthContext snapshot:", err);
           setLoading(false);
-        }
+        });
+
+        // Safety timeout to prevent infinite loading
+        loadingTimeout = setTimeout(() => {
+          setLoading(false);
+        }, 8000);
+
       } else {
         setUserData(null);
         setLoading(false);
@@ -78,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       unsubscribeAuth();
       if (unsubscribeDoc) unsubscribeDoc();
+      if (loadingTimeout) clearTimeout(loadingTimeout);
     };
   }, []);
 
