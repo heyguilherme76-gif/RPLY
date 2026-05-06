@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand-purple: #6C5CFF;
+  --color-brand-pink: #FF5CA8;
+  --color-dark-bg: #09090b;
+  --color-dark-card: #121214;
+}
+
+@layer base {
+  body {
+    @apply bg-dark-bg text-white font-sans antialiased selection:bg-brand-purple/30;
+  }
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-pink;
+}
+
+.gradient-bg {
+  @apply bg-gradient-to-r from-brand-purple to-brand-pink;
+}
+
+.gradient-border {
+  position: relative;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.gradient-border::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  left: -1px;
+  right: -1px;
+  background: linear-gradient(to right, #6C5CFF, #FF5CA8);
+  z-index: -1;
+  border-radius: inherit;
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px rgba(108, 92, 255, 0.2);
+}
+
+.glow-pink {
+  box-shadow: 0 0 20px rgba(255, 92, 168, 0.2);
+}
+
+.premium-card {
+  background: linear-gradient(135deg, rgba(108, 92, 255, 0.1) 0%, rgba(255, 92, 168, 0.1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // USER PROFILE
+    match /users/{userId} {
+      function isValidUser(data) {
+        return data.userId == userId &&
+               (data.email is string || data.email == null) &&
+               data.isPremium is bool &&
+               data.dailyUsage is int &&
+               data.dailyUsage >= 0;
+      }
+
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && request.resource.data.isPremium == false;
+      allow update: if isOwner(userId) && 
+                      isValidUser(request.resource.data) &&
+                      request.resource.data.isPremium == resource.data.isPremium && 
+                      (request.resource.data.email == resource.data.email || (request.resource.data.email == null && resource.data.email == null)) &&
+                      (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['dailyUsage', 'lastUsageDate']));
+      
+      // ANALYSES SUBCOLLECTION
+      match /analyses/{analysisId} {
+        function isValidAnalysis(data) {
+          return data.userId == userId &&
+                 data.nivel_interesse is int &&
+                 data.classificacao is string &&
+                 data.explicacao is string &&
+                 data.respostas is list &&
+                 data.content is string &&
+                 data.createdAt is string;
+        }
+
+        allow list, get: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidAnalysis(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

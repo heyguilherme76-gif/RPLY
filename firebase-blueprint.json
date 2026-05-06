@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "App user with premium status and usage tracking",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "email": { "type": "string" },
+        "isPremium": { "type": "boolean" },
+        "dailyUsage": { "type": "integer" },
+        "lastUsageDate": { "type": "string", "format": "date" }
+      },
+      "required": ["userId", "email", "isPremium", "dailyUsage"]
+    },
+    "Analysis": {
+      "title": "Analysis",
+      "description": "Result of a conversation analysis",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "content": { "type": "string" },
+        "nivel_interesse": { "type": "integer" },
+        "classificacao": { "type": "string" },
+        "explicacao": { "type": "string" },
+        "respostas": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "content", "nivel_interesse", "classificacao", "explicacao", "respostas", "createdAt"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profile and metadata"
+    },
+    "users/{userId}/analyses/{analysisId}": {
+      "schema": "Analysis",
+      "description": "History of analyses for a specific user"
+    }
+  }
+}
