@@ -56,8 +56,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           unsubscribeDoc = onSnapshot(userRef, (doc) => {
             if (doc.exists()) {
               setUserData(doc.data());
-              setLoading(false); // Only stop loading when we have real data
+            } else {
+              setUserData(null);
             }
+            setLoading(false); 
           }, (err) => {
             console.error("Firestore error in AuthContext:", err);
             setLoading(false);

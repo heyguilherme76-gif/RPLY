@@ -34,8 +34,15 @@ const AppContent = () => {
   // If we have a user but no userData yet, wait a bit
   if (!userData) {
     return (
-      <div className="flex items-center justify-center h-screen bg-dark-bg">
-        <Loader2 className="text-brand-purple animate-spin" size={48} />
+      <div className="flex flex-col items-center justify-center h-screen bg-dark-bg p-8 text-center">
+        <Loader2 className="text-brand-purple animate-spin mb-4" size={48} />
+        <p className="text-gray-400">Carregando seu perfil...</p>
+        <button 
+          onClick={() => auth.signOut()}
+          className="mt-8 text-sm text-gray-500 underline"
+        >
+          Sair e tentar novamente
+        </button>
       </div>
     );
   }

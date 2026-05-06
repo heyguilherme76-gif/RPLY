@@ -27,7 +27,18 @@ export const LoginScreen = () => {
         // User profile is handled by AuthContext useEffect onAuthStateChanged
       }
     } catch (err: any) {
-      setError(err.message);
+      if (err.code === "auth/email-already-in-use") {
+        setError("Gmail Já Cadastrado");
+      } else if (err.code === "auth/invalid-credential" || err.code === "auth/user-not-found" || err.code === "auth/wrong-password") {
+        setError("E-mail ou senha incorretos");
+      } else if (err.code === "auth/weak-password") {
+        setError("A senha deve ter pelo menos 6 caracteres");
+      } else if (err.code === "auth/invalid-email") {
+        setError("E-mail inválido");
+      } else {
+        setError("Ocorreu um erro. Tente novamente.");
+        console.error(err);
+      }
     } finally {
       setLoading(false);
     }
