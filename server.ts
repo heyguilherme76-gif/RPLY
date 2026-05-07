@@ -57,18 +57,21 @@ async function startServer() {
 
   app.use(express.json());
 
+  // API routes
+  const apiRouter = express.Router();
+
   // Health check
-  app.get("/api/health", (req, res) => {
+  apiRouter.get("/health", (req, res) => {
     res.json({ status: "ok", firebase: !!admin.apps.length });
   });
 
   // Gemini Analysis Endpoint
-  app.post("/api/analyze", async (req, res) => {
+  apiRouter.post("/analyze", async (req, res) => {
     const { text, imageBase64, style } = req.body;
     
     if (!process.env.GEMINI_API_KEY) {
       console.error("GEMINI_API_KEY is not defined in the environment");
-      return res.status(500).json({ error: "Configuração do servidor incompleta (chave de API ausente)" });
+      return res.status(500).json({ error: "Configuração do servidor incompleta (chave de API ausente na Vercel)" });
     }
 
     try {
@@ -156,7 +159,7 @@ async function startServer() {
   });
 
   // Kiwify Webhook Endpoint
-  app.post("/api/webhook/kiwify", async (req, res) => {
+  apiRouter.post("/webhook/kiwify", async (req, res) => {
     console.log(req.body);
     
     const body = req.body;
@@ -187,12 +190,16 @@ async function startServer() {
       }
     }
 
-    // Retornar 200
     res.status(200).send("OK");
   });
 
-  // Remove the old/redundant plural endpoint if it exists to avoid confusion
-  // (The previous view_file showed it, I'll replace the whole block)
+  // Mount API router
+  app.use("/api", apiRouter);
+
+  // Global 404 for API routes to return JSON instead of HTML
+  app.use("/api/*", (req, res) => {
+    res.status(404).json({ error: `API route not found: ${req.originalUrl}` });
+  });
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {

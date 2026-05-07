@@ -21,8 +21,22 @@ export const analyzeConversation = async (text: string, imageBase64?: string, st
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Falha na comunicação com o servidor de IA");
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Falha na comunicação com o servidor de IA");
+      } else {
+        const errorText = await response.text();
+        console.error("Servidor retornou erro não-JSON:", errorText);
+        throw new Error(`Erro do servidor (${response.status}): Resposta inesperada do servidor.`);
+      }
+    }
+
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await response.text();
+      console.error("Resposta não é JSON:", text);
+      throw new Error("O servidor não retornou um formato de dados válido (JSON).");
     }
 
     return await response.json();
