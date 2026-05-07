@@ -61,81 +61,44 @@ async function startServer() {
     res.json({ status: "ok", firebase: !!admin.apps.length });
   });
 
-  // Kiwify Webhook Endpoint (Singular version requested by user)
+  // Kiwify Webhook Endpoint
   app.post("/api/webhook/kiwify", async (req, res) => {
-    console.log("Kiwify Webhook received (singular):", req.body);
+    console.log(req.body);
     
-    const { order_status, status: body_status, customer, ext_user_id } = req.body;
-    const status = order_status || body_status;
-    const email = customer?.email;
-    const userId = ext_user_id;
+    const body = req.body;
+    const status = body.order_status || body.status;
+    const email = body.customer?.email;
 
-    // The user wants to activate premium if status is "approved"
-    if (status === "approved") {
+    if (status === "approved" && email) {
       try {
         const db = getDb();
         if (!db) throw new Error("Firestore not available");
 
-        let userRef: admin.firestore.DocumentReference | null = null;
-
-        // Try identifying by ext_user_id (uid) first if available
-        if (userId) {
-          userRef = db.collection("users").doc(userId);
-        } else if (email) {
-          // If no userId, try finding by email
-          const userSnapshot = await db.collection("users").where("email", "==", email).limit(1).get();
-          if (!userSnapshot.empty) {
-            userRef = userSnapshot.docs[0].ref;
-          }
-        }
-
-        if (userRef) {
-          await userRef.update({
+        // Encontrar usuário pelo email
+        const userSnapshot = await db.collection("users").where("email", "==", email).limit(1).get();
+        
+        if (!userSnapshot.empty) {
+          const userDoc = userSnapshot.docs[0];
+          // Ativar plano premium
+          await userDoc.ref.update({
             isPremium: true,
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
           });
-          console.log(`User ${userRef.id} upgraded to Premium via Kiwify (approved)`);
-          return res.status(200).send("User upgraded");
+          console.log(`User ${email} upgraded to Premium via Kiwify (approved)`);
         } else {
           console.warn("User not found for email:", email);
-          return res.status(404).send("User not found");
         }
       } catch (error) {
-        console.error("Error upgrading user:", error);
-        return res.status(500).send("Internal Server Error");
+        console.error("Error processing Kiwify webhook:", error);
       }
     }
 
-    res.status(200).send("Webhook received (no action taken)");
+    // Retornar 200
+    res.status(200).send("OK");
   });
 
-  // Kiwify Webhook Endpoint (Plural version - legacy)
-  app.post("/api/webhooks/kiwify", async (req, res) => {
-    console.log("Kiwify Webhook received:", req.body);
-    
-    const { order_status, ext_user_id } = req.body;
-    const userId = ext_user_id;
-
-    if (order_status === "paid" && userId) {
-      try {
-        const db = getDb();
-        if (!db) throw new Error("Firestore not available");
-
-        const userRef = db.collection("users").doc(userId);
-        await userRef.update({
-          isPremium: true,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
-        console.log(`User ${userId} upgraded to Premium via Kiwify`);
-        return res.status(200).send("User upgraded");
-      } catch (error) {
-        console.error("Error upgrading user:", error);
-        return res.status(500).send("Internal Server Error");
-      }
-    }
-
-    res.status(200).send("Webhook received (no action taken)");
-  });
+  // Remove the old/redundant plural endpoint if it exists to avoid confusion
+  // (The previous view_file showed it, I'll replace the whole block)
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
