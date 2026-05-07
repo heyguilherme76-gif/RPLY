@@ -50,15 +50,11 @@ const getDb = () => {
   }
 };
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
-  console.log("NODE_ENV:", process.env.NODE_ENV);
+export const app = express();
+app.use(express.json());
 
-  app.use(express.json());
-
-  // API routes
-  const apiRouter = express.Router();
+// API routes
+const apiRouter = express.Router();
 
   // Health check
   apiRouter.get("/health", (req, res) => {
@@ -193,36 +189,50 @@ async function startServer() {
     res.status(200).send("OK");
   });
 
-  // Mount API router
-  app.use("/api", apiRouter);
+// Mount API router
+app.use("/api", apiRouter);
 
-  // Global 404 for API routes to return JSON instead of HTML
-  app.use("/api/*", (req, res) => {
-    res.status(404).json({ error: `API route not found: ${req.originalUrl}` });
-  });
+// Global 404 for API routes to return JSON instead of HTML
+app.use("/api/*", (req, res) => {
+  res.status(404).json({ error: `API route not found: ${req.originalUrl}` });
+});
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+// Vite middleware for development
+if (process.env.NODE_ENV !== "production") {
+  const setupVite = async () => {
     console.log("Starting in development mode with Vite middleware...");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
-    console.log("Starting in production mode...");
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
-  }
+  };
+  setupVite();
+} else {
+  console.log("Starting in production mode...");
+  const distPath = path.join(process.cwd(), "dist");
+  app.use(express.static(distPath));
+  app.get("*", (req, res) => {
+    // Check if it's an API route that somehow missed the handler
+    if (req.path.startsWith("/api/")) {
+      return res.status(404).json({ error: "API not found" });
+    }
+    // Serve index.html for SPA routing
+    const indexPath = path.join(distPath, "index.html");
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).send("Production build not found. Run npm run build.");
+    }
+  });
+}
 
+// Only listen if this file is run directly
+if (process.env.AIS_SERVER || process.env.NODE_ENV === "development") {
+  const PORT = 3000;
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }
 
-startServer().catch(err => {
-  console.error("Failed to start server:", err);
-});
+export default app;
