@@ -81,9 +81,15 @@ const AppContent = () => {
           analises_usadas: increment(1)
         });
       }
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao analisar. Tente novamente.");
+    } catch (err: any) {
+      console.error("Erro completo na análise:", err);
+      if (err.message?.includes("Quota exceeded")) {
+        alert("Limite de uso atingido. Tente novamente mais tarde.");
+      } else if (err.message?.includes("API key")) {
+        alert("Erro de configuração: Chave da IA inválida.");
+      } else {
+        alert(`Erro ao analisar: ${err.message || "Tente novamente."}`);
+      }
     } finally {
       setIsAnalyzing(false);
     }

@@ -38,43 +38,61 @@ export const analyzeConversation = async (text: string, imageBase64?: string, st
     }
   `;
 
-  let contents: any;
-  const promptText = `${prompt}\n\nConversa:\n${text}`;
-
-  if (imageBase64) {
-    const imageData = imageBase64.split(",")[1] || imageBase64;
-    contents = {
-      parts: [
-        { text: prompt },
-        { inlineData: { data: imageData, mimeType: "image/png" } }
-      ]
-    };
-  } else {
-    contents = promptText;
-  }
-
-  const response = await ai.models.generateContent({
-    model,
-    contents,
-    config: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.OBJECT,
-        properties: {
-          nivel_interesse: { type: Type.INTEGER },
-          classificacao: { type: Type.STRING },
-          explicacao: { type: Type.STRING },
-          respostas: { type: Type.ARRAY, items: { type: Type.STRING } }
-        },
-        required: ["nivel_interesse", "classificacao", "explicacao", "respostas"]
-      }
+  try {
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY não configurada no ambiente.");
     }
-  });
 
-  const analysisText = response.text;
-  if (!analysisText) {
-    throw new Error("Falha ao obter resposta da IA");
+    const parts: any[] = [{ text: prompt }];
+    
+    if (text.trim()) {
+      parts.push({ text: `Conversa em texto:\n${text}` });
+    }
+
+    if (imageBase64) {
+      let mimeType = "image/png";
+      let imageData = imageBase64;
+
+      if (imageBase64.includes(";base64,")) {
+        const match = imageBase64.match(/^data:(image\/[a-z]+);base64,/);
+        if (match) mimeType = match[1];
+        imageData = imageBase64.split(",")[1];
+      }
+
+      parts.push({ 
+        inlineData: { 
+          data: imageData, 
+          mimeType 
+        } 
+      });
+    }
+
+    const response = await ai.models.generateContent({
+      model,
+      contents: { parts },
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            nivel_interesse: { type: Type.INTEGER },
+            classificacao: { type: Type.STRING },
+            explicacao: { type: Type.STRING },
+            respostas: { type: Type.ARRAY, items: { type: Type.STRING } }
+          },
+          required: ["nivel_interesse", "classificacao", "explicacao", "respostas"]
+        }
+      }
+    });
+
+    const analysisText = response.text;
+    if (!analysisText) {
+      throw new Error("A IA retornou uma resposta vazia.");
+    }
+
+    return JSON.parse(analysisText.trim());
+  } catch (error: any) {
+    console.error("Erro na GeminiService:", error);
+    throw new Error(error.message || "Erro desconhecido na análise da IA");
   }
-
-  return JSON.parse(analysisText.trim());
 };
