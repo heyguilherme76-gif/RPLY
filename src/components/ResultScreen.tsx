@@ -20,22 +20,42 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ data, onBack }) => {
   };
 
   return (
-    <div className="flex flex-col h-full px-4 pt-6 pb-20 max-w-lg mx-auto overflow-y-auto">
+    <div className="flex flex-col h-full px-5 pt-6 pb-20 max-w-lg mx-auto overflow-y-auto">
       <button 
         onClick={onBack}
-        className="flex items-center gap-2 text-gray-500 hover:text-white transition-colors mb-6 group w-fit"
+        className="flex items-center gap-2 text-gray-500 hover:text-white transition-colors mb-4 sm:mb-6 group w-fit text-sm"
       >
-        <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+        <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
         Voltar à análise
       </button>
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-8"
+        className="text-center mb-6 sm:mb-8"
       >
-        <div className="relative inline-flex items-center justify-center p-1 rounded-full mb-6 mx-auto">
-           <svg className="w-32 h-32 transform -rotate-90">
+        <div className="relative inline-flex items-center justify-center p-1 rounded-full mb-4 sm:mb-6 mx-auto">
+           <svg className="w-28 h-28 sm:w-32 sm:h-32 transform -rotate-90">
+            <circle
+              cx="56"
+              cy="56"
+              r="50"
+              stroke="currentColor"
+              strokeWidth="8"
+              fill="transparent"
+              className="text-white/5 sm:hidden"
+            />
+            <circle
+              cx="56"
+              cy="56"
+              r="50"
+              stroke="currentColor"
+              strokeWidth="8"
+              fill="transparent"
+              strokeDasharray={2 * Math.PI * 50}
+              strokeDashoffset={2 * Math.PI * 50 * (1 - data.nivel_interesse / 100)}
+              className={`text-brand-purple transition-all duration-1000 ease-out sm:hidden`}
+            />
             <circle
               cx="64"
               cy="64"
@@ -43,7 +63,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ data, onBack }) => {
               stroke="currentColor"
               strokeWidth="8"
               fill="transparent"
-              className="text-white/5"
+              className="text-white/5 hidden sm:block"
             />
             <circle
               cx="64"
@@ -54,15 +74,15 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ data, onBack }) => {
               fill="transparent"
               strokeDasharray={2 * Math.PI * 58}
               strokeDashoffset={2 * Math.PI * 58 * (1 - data.nivel_interesse / 100)}
-              className={`text-brand-purple transition-all duration-1000 ease-out`}
+              className={`text-brand-purple transition-all duration-1000 ease-out hidden sm:block`}
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-4xl font-black">{data.nivel_interesse}%</span>
+            <span className="text-3xl sm:text-4xl font-black">{data.nivel_interesse}%</span>
           </div>
         </div>
         
-        <h2 className="text-2xl font-bold mb-1">{data.classificacao}</h2>
+        <h2 className="text-xl sm:text-2xl font-bold mb-1 leading-tight">{data.classificacao}</h2>
         <div className="flex justify-center gap-4 text-xs font-medium uppercase tracking-widest text-gray-500">
            {data.nivel_interesse >= 70 ? (
              <span className="text-green-500 flex items-center gap-1"><TrendingUp size={14} /> Recomenda-se prosseguir</span>

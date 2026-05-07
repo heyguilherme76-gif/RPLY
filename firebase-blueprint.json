@@ -8,11 +8,11 @@
         "userId": { "type": "string" },
         "email": { "type": "string" },
         "isPremium": { "type": "boolean" },
-        "totalUsage": { "type": "integer" },
+        "analises_usadas": { "type": "integer" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["userId", "email", "isPremium", "totalUsage"]
+      "required": ["userId", "email", "isPremium", "analises_usadas"]
     },
     "Analysis": {
       "title": "Analysis",

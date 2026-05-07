@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 userId: currentUser.uid,
                 email: currentUser.email,
                 isPremium: false,
-                totalUsage: 0,
+                analises_usadas: 0,
                 createdAt: new Date().toISOString(),
               };
               // Using setDoc here. Since we are inside onSnapshot, 

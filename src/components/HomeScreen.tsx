@@ -65,13 +65,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onAnalyze, isLoading, re
         </button>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-6 pt-8 pb-32 space-y-10">
+      <div className="flex-1 overflow-y-auto px-5 pt-6 pb-28 space-y-8">
         {/* Hero Section */}
-        <section className="text-center space-y-4">
+        <section className="text-center space-y-3">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-block px-4 py-1.5 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-[10px] font-bold uppercase tracking-widest"
+            className="inline-block px-3 py-1 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-[10px] font-bold uppercase tracking-widest"
           >
             Powered by AI Deep Analysis
           </motion.div>
@@ -79,16 +79,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onAnalyze, isLoading, re
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl font-bold leading-tight"
+            className="text-3xl sm:text-4xl font-bold leading-tight px-2"
           >
-            Descubra o que a pessoa <br />
+            Descubra o que a pessoa <br className="hidden sm:block" />
             <span className="gradient-text">realmente quer dizer</span>
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-gray-400 text-sm max-w-[280px] mx-auto"
+            className="text-gray-400 text-xs sm:text-sm max-w-[280px] mx-auto balance"
           >
             Cole a conversa e receba uma análise completa em segundos.
           </motion.p>
@@ -97,13 +97,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onAnalyze, isLoading, re
         {/* Input Area */}
         <section className="space-y-4">
           <div className="relative group">
-            <div className="absolute -inset-0.5 gradient-bg rounded-[32px] opacity-0 group-focus-within:opacity-30 blur-md transition-opacity" />
-            <div className="relative bg-dark-card border border-white/10 rounded-[32px] overflow-hidden focus-within:border-brand-purple/50 transition-all">
+            <div className="absolute -inset-0.5 gradient-bg rounded-[24px] sm:rounded-[32px] opacity-0 group-focus-within:opacity-30 blur-md transition-opacity" />
+            <div className="relative bg-dark-card border border-white/10 rounded-[24px] sm:rounded-[32px] overflow-hidden focus-within:border-brand-purple/50 transition-all">
               <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Cole o print ou texto da conversa..."
-                className="w-full h-56 bg-transparent p-6 outline-none text-gray-200 placeholder:text-gray-600 resize-none leading-relaxed text-sm"
+                className="w-full h-48 sm:h-56 bg-transparent p-5 sm:p-6 outline-none text-gray-200 placeholder:text-gray-600 resize-none leading-relaxed text-sm"
               />
               <div className="absolute bottom-4 right-4 flex gap-3">
                 <button 
@@ -166,20 +166,36 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onAnalyze, isLoading, re
               </div>
             </div>
 
-            <button
-              onClick={handleSubmit}
-              disabled={(!text.trim() && !image) || isLoading || remainingAnalyses <= 0}
-              className="w-full py-5 rounded-2xl gradient-bg font-bold text-lg flex items-center justify-center gap-3 shadow-xl glow-purple hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
-            >
-              {isLoading ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <>
-                  Analisar Conversa
-                  <Send size={18} />
-                </>
+            <div className="space-y-4">
+              {remainingAnalyses <= 0 && !isLoading && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-bold text-center uppercase tracking-wider"
+                >
+                  Você já utilizou suas 2 análises gratuitas. Faça upgrade para continuar.
+                </motion.div>
               )}
-            </button>
+
+              <button
+                onClick={handleSubmit}
+                disabled={(!text.trim() && !image) || isLoading || remainingAnalyses <= 0}
+                className="w-full py-5 rounded-2xl gradient-bg font-bold text-lg flex items-center justify-center gap-3 shadow-xl glow-purple hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:grayscale disabled:hover:scale-100"
+              >
+                {isLoading ? (
+                  <Loader2 className="animate-spin" />
+                ) : remainingAnalyses <= 0 ? (
+                  <>
+                    Limite Atingido
+                    <Lock size={18} />
+                  </>
+                ) : (
+                  <>
+                    Analisar Conversa
+                    <Send size={18} />
+                  </>
+                )}
+              </button>
             
             <div className="flex items-center justify-center gap-4 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
               <span>Créditos Grátis:</span>
@@ -193,7 +209,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onAnalyze, isLoading, re
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
         {/* Features list */}
         <section className="grid grid-cols-2 gap-4">

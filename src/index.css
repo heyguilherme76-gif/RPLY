@@ -55,3 +55,16 @@
   background: linear-gradient(135deg, rgba(108, 92, 255, 0.1) 0%, rgba(255, 92, 168, 0.1) 100%);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+.h-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

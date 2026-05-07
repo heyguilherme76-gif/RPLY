@@ -61,13 +61,13 @@ export const LoginScreen = () => {
   };
 
   return (
-    <div className="flex flex-col items-center px-6 py-12 max-w-sm mx-auto h-full">
-      <div className="mb-12 text-center">
-        <div className="w-16 h-16 bg-gradient-to-tr from-brand-purple to-brand-pink rounded-3xl rotate-12 flex items-center justify-center shadow-lg shadow-brand-purple/20 mx-auto mb-6">
-          <MessageSquareIcon className="text-white -rotate-12" size={32} />
+    <div className="flex flex-col items-center px-6 py-10 sm:py-16 max-w-sm mx-auto h-full">
+      <div className="mb-10 sm:mb-12 text-center">
+        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-tr from-brand-purple to-brand-pink rounded-2xl sm:rounded-3xl rotate-12 flex items-center justify-center shadow-lg shadow-brand-purple/20 mx-auto mb-5 sm:mb-6">
+          <MessageSquareIcon className="text-white -rotate-12" size={28} />
         </div>
-        <h1 className="text-4xl font-black gradient-text italic">RPLY</h1>
-        <p className="text-gray-400 text-sm mt-2">
+        <h1 className="text-3xl sm:text-4xl font-black gradient-text italic">RPLY</h1>
+        <p className="text-gray-400 text-xs sm:text-sm mt-2">
           {isLogin ? "Bem-vindo de volta" : "Crie sua conta gratuita"}
         </p>
       </div>

@@ -53,7 +53,7 @@ const AppContent = () => {
   }
 
   const handleAnalyze = async (text: string, image?: string, style: string = "equilibrado") => {
-    if (!userData.isPremium && (userData.totalUsage || userData.dailyUsage || 0) >= 2) {
+    if (!userData?.isPremium && (userData?.analises_usadas || 0) >= 2) {
       setCurrentScreen("premium");
       return;
     }
@@ -75,10 +75,10 @@ const AppContent = () => {
       setCurrentScreen("result");
 
       // Update usage if not premium
-      if (!userData.isPremium) {
+      if (!userData?.isPremium) {
         const userRef = doc(db, "users", user.uid);
         await updateDoc(userRef, {
-          totalUsage: increment(1)
+          analises_usadas: increment(1)
         });
       }
     } catch (err) {
@@ -90,7 +90,7 @@ const AppContent = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-dark-bg text-white selection:bg-brand-purple/30 max-w-md mx-auto relative overflow-hidden">
+    <div className="flex flex-col h-screen bg-dark-bg text-white selection:bg-brand-purple/30 max-w-md mx-auto relative overflow-hidden shadow-2xl">
       <main className="flex-1 overflow-hidden">
         <AnimatePresence mode="wait">
           {currentScreen === "home" && (
@@ -104,7 +104,7 @@ const AppContent = () => {
               <HomeScreen 
                 onAnalyze={handleAnalyze} 
                 isLoading={isAnalyzing} 
-                remainingAnalyses={userData?.isPremium ? Infinity : Math.max(0, 2 - (userData?.totalUsage || userData?.dailyUsage || 0))} 
+                remainingAnalyses={userData?.isPremium ? Infinity : Math.max(0, 2 - (userData?.analises_usadas || 0))} 
               />
             </motion.div>
           )}
@@ -136,32 +136,32 @@ const AppContent = () => {
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }}
-              className="h-full flex flex-col items-center justify-center p-8 text-center"
+              className="h-full flex flex-col items-center justify-center p-6 sm:p-8 text-center overflow-y-auto"
             >
-              <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-brand-purple to-brand-pink mb-6 flex items-center justify-center text-4xl font-bold">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-brand-purple to-brand-pink mb-4 sm:mb-6 flex items-center justify-center text-3xl sm:text-4xl font-bold">
                 {userData?.email?.charAt(0).toUpperCase()}
               </div>
-              <h2 className="text-2xl font-bold mb-1">{userData?.email}</h2>
-              <p className="text-gray-500 mb-8">{userData?.isPremium ? "Usuário Premium" : "Plano Gratuito"}</p>
+              <h2 className="text-xl sm:text-2xl font-bold mb-1 truncate max-w-full px-4">{userData?.email}</h2>
+              <p className="text-gray-500 mb-6 sm:mb-8 text-sm">{userData?.isPremium ? "Usuário Premium" : "Plano Gratuito"}</p>
               
-              <div className="w-full bg-dark-card rounded-2xl p-6 mb-8 text-left border border-white/5">
+              <div className="w-full bg-dark-card rounded-2xl p-5 sm:p-6 mb-6 sm:mb-8 text-left border border-white/5">
                  <div className="flex justify-between mb-2">
-                    <span className="text-sm text-gray-400">Total de análises</span>
-                    <span className="text-sm font-bold">{(userData?.totalUsage || userData?.dailyUsage || 0)}/2</span>
+                    <span className="text-xs sm:text-sm text-gray-400">Análises utilizadas (Vitalício)</span>
+                    <span className="text-xs sm:text-sm font-bold">{(userData?.analises_usadas || 0)}/2</span>
                  </div>
-                 <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                 <div className="w-full h-1.5 sm:h-2 bg-white/5 rounded-full overflow-hidden">
                     <div 
                       className="h-full gradient-bg transition-all duration-500" 
-                      style={{ width: `${Math.min(100, ((userData?.totalUsage || userData?.dailyUsage || 0) / 2) * 100)}%` }} 
+                      style={{ width: `${Math.min(100, ((userData?.analises_usadas || 0) / 2) * 100)}%` }} 
                     />
                  </div>
               </div>
 
               <button 
                 onClick={() => auth.signOut()}
-                className="flex items-center gap-2 text-red-500 font-bold hover:bg-red-500/10 px-6 py-3 rounded-xl transition-colors"
+                className="flex items-center gap-2 text-red-500 font-bold hover:bg-red-500/10 px-6 py-3 rounded-xl transition-colors text-sm"
               >
-                <LogOut size={20} /> Sair da conta
+                <LogOut size={18} /> Sair da conta
               </button>
             </motion.div>
           )}
@@ -182,11 +182,11 @@ const AppContent = () => {
         </AnimatePresence>
       </main>
 
-      <nav className="h-20 bg-dark-card/80 backdrop-blur-xl border-t border-white/5 flex items-center justify-around px-4 pb-4 sticky bottom-0 z-40">
+      <nav className="h-16 h-safe-bottom bg-dark-card/90 backdrop-blur-xl border-t border-white/5 flex items-center justify-around px-3 sticky bottom-0 z-40">
         <NavButton 
           active={currentScreen === "home"} 
           onClick={() => setCurrentScreen("home")} 
-          icon={<Home size={20} />} 
+          icon={<Home size={18} />} 
           label="Home" 
         />
         <NavButton 
@@ -195,25 +195,25 @@ const AppContent = () => {
             if (analysisResult) setCurrentScreen("result");
             else setCurrentScreen("home");
           }} 
-          icon={<Sparkles size={20} />} 
+          icon={<Sparkles size={18} />} 
           label="Análise" 
         />
         <NavButton 
           active={currentScreen === "history"} 
           onClick={() => setCurrentScreen("history")} 
-          icon={<Clock size={20} />} 
+          icon={<Clock size={18} />} 
           label="Histórico" 
         />
         <NavButton 
           active={currentScreen === "premium"} 
           onClick={() => setCurrentScreen("premium")} 
-          icon={<Crown size={20} className={userData?.isPremium ? "text-yellow-500" : ""} />} 
+          icon={<Crown size={18} className={userData?.isPremium ? "text-yellow-500" : ""} />} 
           label="Premium" 
         />
         <NavButton 
           active={currentScreen === "profile"} 
           onClick={() => setCurrentScreen("profile")} 
-          icon={<User size={20} />} 
+          icon={<User size={18} />} 
           label="Perfil" 
         />
       </nav>

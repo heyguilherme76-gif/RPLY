@@ -79,7 +79,7 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ onSelect }) => {
         <p className="text-gray-500 text-xs mt-1">Últimas 20 análises realizadas</p>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 pb-24">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 pb-24">
         {history.map((item, i) => (
           <motion.div
             key={item.id}
@@ -87,11 +87,31 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ onSelect }) => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.05 }}
             onClick={() => onSelect(item)}
-            className="p-5 bg-dark-card border border-white/5 rounded-[24px] flex items-center justify-between group active:scale-[0.98] transition-all cursor-pointer hover:border-brand-purple/30"
+            className="p-4 sm:p-5 bg-dark-card border border-white/5 rounded-[20px] sm:rounded-[24px] flex items-center justify-between group active:scale-[0.98] transition-all cursor-pointer hover:border-brand-purple/30"
           >
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div className="relative">
-                <svg className="w-12 h-12 transform -rotate-90">
+                <svg className="w-10 h-10 sm:w-12 sm:h-12 transform -rotate-90">
+                  <circle
+                    cx="20"
+                    cy="20"
+                    r="18"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    fill="transparent"
+                    className="text-white/5 sm:hidden"
+                  />
+                  <circle
+                    cx="20"
+                    cy="20"
+                    r="18"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    fill="transparent"
+                    strokeDasharray={2 * Math.PI * 18}
+                    strokeDashoffset={2 * Math.PI * 18 * (1 - item.nivel_interesse / 100)}
+                    className="text-brand-purple sm:hidden"
+                  />
                   <circle
                     cx="24"
                     cy="24"
@@ -99,7 +119,7 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ onSelect }) => {
                     stroke="currentColor"
                     strokeWidth="4"
                     fill="transparent"
-                    className="text-white/5"
+                    className="text-white/5 hidden sm:block"
                   />
                   <circle
                     cx="24"
@@ -110,11 +130,11 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ onSelect }) => {
                     fill="transparent"
                     strokeDasharray={2 * Math.PI * 20}
                     strokeDashoffset={2 * Math.PI * 20 * (1 - item.nivel_interesse / 100)}
-                    className="text-brand-purple"
+                    className="text-brand-purple hidden sm:block"
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[10px] font-black">{item.nivel_interesse}%</span>
+                  <span className="text-[9px] sm:text-[10px] font-black">{item.nivel_interesse}%</span>
                 </div>
               </div>
 

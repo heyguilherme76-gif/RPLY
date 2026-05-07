@@ -24,10 +24,7 @@ service cloud.firestore {
         return data.userId == userId &&
                (data.email is string || data.email == null) &&
                data.isPremium is bool &&
-               (
-                 (data.get('totalUsage', null) is int && data.totalUsage >= 0) ||
-                 (data.get('dailyUsage', null) is int && data.dailyUsage >= 0)
-               );
+               (data.get('analises_usadas', null) is int && data.analises_usadas >= 0);
       }
 
       allow get: if isOwner(userId);
@@ -36,7 +33,7 @@ service cloud.firestore {
                       isValidUser(request.resource.data) &&
                       request.resource.data.isPremium == resource.data.isPremium && 
                       (request.resource.data.email == resource.data.email || (request.resource.data.email == null && resource.data.email == null)) &&
-                      (request.resource.data.diff(resource.data).affectedKeys().hasAll(['totalUsage']) || request.resource.data.diff(resource.data).affectedKeys().hasAll(['dailyUsage']));
+                      (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['analises_usadas', 'updatedAt']));
       
       // ANALYSES SUBCOLLECTION
       match /analyses/{analysisId} {
